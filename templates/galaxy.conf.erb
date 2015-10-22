@@ -1,0 +1,120 @@
+# Configuration as per https://wiki.galaxyproject.org/Admin/Config/Apache%20Proxy?action=show
+<VirtualHost *:80>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName      galaxy-server.uni.lu
+    ServerAdmin     webmaster@localhost
+
+    ServerSignature Off
+
+    SSLEngine On
+    SSLCertificateFile /etc/ssl/localcerts/apache.pem
+    SSLCertificateKeyFile /etc/ssl/localcerts/apache.key
+
+    # Galaxy can take a long time to reply
+    TimeOut 60000
+
+    RewriteEngine on
+
+    # Serve static content directly
+    RewriteRule ^/static/style/(.*) /home/galaxy/galaxy-dist/static/june_2007_style/blue/$1 [L]
+    RewriteRule ^/static/scripts/(.*) /home/galaxy/galaxy-dist/static/scripts/packed/$1 [L]
+    RewriteRule ^/static/(.*) /home/galaxy/galaxy-dist/static/$1 [L]
+    RewriteRule ^/favicon.ico /home/galaxy/galaxy-dist/static/favicon.ico [L]
+    RewriteRule ^/robots.txt /home/galaxy/galaxy-dist/static/robots.txt [L]
+
+    # Rewrite rules for toolshed
+    RewriteRule ^/toolshed$ /toolshed/ [R,L]
+    RewriteRule ^/toolshed/static/style/(.*) /home/galaxy/galaxy-dist/static/june_2007_style/blue/$1 [L]
+    RewriteRule ^/toolshed/static/(.*) /home/galaxy/galaxy-dist/static/$1 [L]
+    RewriteRule ^/toolshed/images/(.*) /home/galaxy/galaxy-dist/static/images/$1 [L]
+    RewriteRule ^/toolshed/favicon.ico /home/galaxy/galaxy-dist/static/favicon.ico [L]
+    RewriteRule ^/toolshed/robots.txt /home/galaxy/galaxy-dist/static/robots.txt [L]
+    RewriteRule ^/toolshed(.*) http://localhost:9009$1 [P]
+
+    # API requests get routed through balancer with no authentication
+    RewriteCond %{QUERY_STRING} key=
+    RewriteRule ^/api/(.*) balancer://galaxy-noauth/api/$1 [P]
+
+    # Regualr requests get routed through balancer with LDAP authentication
+    RewriteRule ^(.*) balancer://galaxy$1 [P]
+
+    <Proxy balancer://galaxy/*> 
+        BalancerMember  http://localhost:8080
+        BalancerMember  http://localhost:8081
+        BalancerMember  http://localhost:8082
+        BalancerMember  http://localhost:8083
+
+	RequestHeader set X-URL-SCHEME https
+
+        AuthType Basic
+        AuthBasicProvider ldap
+        AuthName               "UL HPC Platform Authorized Users Only"
+        AuthLDAPBindAuthoritative off
+        AuthLDAPURL "ldap://hpc-ldap.uni.lux:389/ou=People,ou=Gaia,ou=Clusters,ou=HPC,ou=Services,dc=uni,dc=lu?uid?sub?(objectClass=posixAccount)"
+        Require valid-user
+        # Set the REMOTE_USER header to the contents of the LDAP query response's "uid" attribute
+        RequestHeader set REMOTE_USER %{AUTHENTICATE_uid}e
+
+        #  Allow Apache to send files instead of Galaxy, speeding it up 
+        XSendFile on
+        XSendFilePath /
+
+        # Compress all uncompressed content.
+        SetOutputFilter DEFLATE
+        SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI \.(?:t?gz|zip|bz2)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI /history/export_archive no-gzip dont-vary
+    </Proxy>
+
+    <Proxy balancer://galaxy-noauth/*> 
+        BalancerMember  http://localhost:8080
+        BalancerMember  http://localhost:8081
+        BalancerMember  http://localhost:8082
+        BalancerMember  http://localhost:8083
+
+	RequestHeader set X-URL-SCHEME https
+
+        # This is for API only
+        Satisfy any
+
+        #  Allow Apache to send files instead of Galaxy, speeding it up 
+        XSendFile on
+        XSendFilePath /
+
+        # Compress all uncompressed content.
+        SetOutputFilter DEFLATE
+        SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI \.(?:t?gz|zip|bz2)$ no-gzip dont-vary
+        SetEnvIfNoCase Request_URI /history/export_archive no-gzip dont-vary
+    </Proxy>
+
+    <Location "/static">
+        # Allow browsers to cache everything from /static for 6 hours
+        ExpiresActive On
+        ExpiresDefault "access plus 6 hours"
+        Satisfy any
+    </Location>
+
+    <Location "/root/display_as">
+        Satisfy Any
+        Order deny,allow
+        Deny from all
+        Allow from hgw1.cse.ucsc.edu
+        Allow from hgw2.cse.ucsc.edu
+        Allow from hgw3.cse.ucsc.edu
+        Allow from hgw4.cse.ucsc.edu
+        Allow from hgw5.cse.ucsc.edu
+        Allow from hgw6.cse.ucsc.edu
+        Allow from hgw7.cse.ucsc.edu
+        Allow from hgw8.cse.ucsc.edu
+    </Location>
+
+    ErrorLog /var/log/apache2/galaxy-server.uni.lu_error.log
+    LogLevel warn
+    CustomLog /var/log/apache2/galaxy-server.uni.lu_access.log combined
+</VirtualHost>

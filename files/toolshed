@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Author: James Casbon, 2009
+
+### BEGIN INIT INFO
+# Provides:             galaxy_toolshed
+# Required-Start:       $network $local_fs
+# Required-Stop:
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    Galaxy Toolshed
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+USER="galaxy"
+GROUP="galaxy"
+DIR="/home/galaxy/galaxy-dist/"
+PYTHON="/usr/bin/python"
+OPTS="./scripts/paster.py serve --log-file /home/galaxy/tool_shed_webapp.log config/tool_shed.ini"
+PIDFILE="/var/run/tool_shed_webapp.pid"
+
+
+get_pid() {
+  cat $1
+}
+is_running() {
+  ([ -f "$PIDFILE" ] && ps `get_pid $PIDFILE` ) > /dev/null 2>&1
+}
+
+
+case "${1:-''}" in
+  'start')
+           log_daemon_msg "Starting Galaxy tool_shed_webapp"
+           if start-stop-daemon --chuid $USER --group $GROUP --start --make-pidfile \
+	             --pidfile $PIDFILE --background --chdir $DIR --exec $PYTHON -- $OPTS; then
+             log_end_msg 0
+           else
+             log_end_msg 1
+	   fi
+        ;;
+  'stop')
+    log_daemon_msg "Stopping Galaxy tool_shed_webapp" 
+	   if start-stop-daemon --stop --pidfile $PIDFILE; then
+	     log_end_msg 0
+	   else 
+	     log_end_msg 1
+	   fi
+     ;;
+  'restart')
+           # restart commands here
+	   $0 stop
+	   $0 start
+        ;;
+  'status' )
+    if is_running; then
+	echo "Running"
+    else
+	echo "Stopped"
+	exit 1
+    fi
+    ;;
+  *)      # no parameter specified
+        echo "Usage: $SELF start|stop|restart|status"
+        exit 1
+        ;;
+esac
+

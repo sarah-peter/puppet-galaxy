@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<job_conf>
+    <plugins workers="4">
+        <!-- "workers" is the number of threads for the runner's work queue.
+             The default from <plugins> is used if not defined for a <plugin>.
+          -->
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner"/>
+        <plugin id="cli" type="runner" load="galaxy.jobs.runners.cli:ShellJobRunner" />
+    </plugins>
+    <handlers default="handlers">
+        <!-- Additional job handlers - the id should match the name of a
+             [server:<id>] in galaxy.ini.
+         -->
+        <handler id="handler0" tags="handlers"/>
+        <handler id="handler1" tags="handlers"/>
+        <handler id="handler2" tags="handlers"/>
+        <handler id="handler3" tags="handlers"/>
+    </handlers>
+    <destinations default="ssh_oar">
+        <!-- Destinations define details about remote resources and how jobs
+             should be executed on those remote resources.
+         -->
+        <destination id="local" runner="local"/>
+        <destination id="multicore_local" runner="local">
+          <param id="local_slots">16</param> <!-- Specify GALAXY_SLOTS for local jobs. -->
+          <!-- Warning: Local slot count doesn't tie up additional worker threads, to prevent over 
+               allocating machine define a second local runner with different name and fewer workers
+               to run this destination. -->
+          <param id="embed_metadata_in_job">True</param>
+          <!-- Above parameter will be default (with no option to set
+               to False) in an upcoming release of Galaxy, but you can
+               try it early - it will slightly speed up local jobs by
+               embedding metadata calculation in job script itself.
+          -->
+          <job_metrics /> 
+          <!-- Above element demonstrates embedded job metrics definition - see
+               job_metrics_conf.xml.sample for full documentation on possible nested
+               elements. This empty block will simply disable job metrics for the
+               corresponding destination. -->
+	</destination>
+	<destination id="ssh_oar" runner="cli">
+	    <param id="shell_plugin">SecureShell</param>
+	    <param id="job_plugin">Oar</param>
+	    <param id="shell_username">project_galaxy</param>
+	    <param id="shell_hostname">gaia-cluster</param>
+	    <param id="job_resources">/nodes=1/core=1,walltime=2:00:00</param>
+	    <param id="job_properties">os='debian7'</param>
+	</destination>
+        <destination id="multicore_ssh_oar" runner="cli">
+            <param id="shell_plugin">SecureShell</param>
+            <param id="job_plugin">Oar</param>
+            <param id="shell_username">project_galaxy</param>
+            <param id="shell_hostname">gaia-cluster</param>
+            <param id="job_resources">/nodes=1/core=8,walltime=2:00:00</param>
+            <param id="job_properties">os='debian7'</param>
+        </destination>
+        <destination id="long_ssh_oar" runner="cli">
+            <param id="shell_plugin">SecureShell</param>
+            <param id="job_plugin">Oar</param>
+            <param id="shell_username">project_galaxy</param>
+            <param id="shell_hostname">gaia-cluster</param>
+            <param id="job_resources">/nodes=1/core=1,walltime=12:00:00</param>
+            <param id="job_properties">os='debian7'</param>
+        </destination>
+      </destinations>
+      <tools>
+	    <tool id="__SET_METADATA__" destination="local" />
+	    <tool id="CONVERTER_Bam_Bai_0" destination="local" />
+	    <tool id="CONVERTER_bam_to_bigwig_0" destination="local" />
+	    <tool id="CONVERTER_bed_gff_or_vcf_to_bigwig_0" destination="local" />
+	    <tool id="CONVERTER_bedgraph_to_bigwig" destination="local" />
+	    <tool id="CONVERTER_bed_to_bgzip_0" destination="local" />
+	    <tool id="CONVERTER_bed_to_fli_0" destination="local" />
+	    <tool id="CONVERTER_bed_to_gff_0" destination="local" />
+	    <tool id="CONVERTER_bed_to_tabix_0" destination="local" />
+	    <tool id="CONVERTER_encodepeak_to_bgzip_0" destination="local" />
+	    <tool id="CONVERTER_encodepeak_to_tabix_0" destination="local" />
+	    <tool id="CONVERTER_fasta_to_2bit" destination="local" />
+	    <tool id="CONVERTER_fasta_to_bowtie_base_index" destination="local" />
+	    <tool id="CONVERTER_fasta_to_bowtie_color_index" destination="local" />
+	    <tool id="CONVERTER_fasta_to_len" destination="local" />
+	    <tool id="CONVERTER_fasta_to_tabular" destination="local" />
+	    <tool id="CONVERTER_fastq_to_fqtoc0" destination="local" />
+	    <tool id="CONVERTER_gff_to_bed_0" destination="local" />
+	    <tool id="CONVERTER_gff_to_fli_0" destination="local" />
+	    <tool id="CONVERTER_gff_to_interval_index_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bed_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bed12_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bed6_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bedstrict_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bgzip_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_bigwig_0" destination="local" />
+	    <tool id="CONVERTER_interval_to_tabix_0" destination="local" />
+	    <tool id="CONVERTER_len_to_linecount" destination="local" />
+	    <tool id="CONVERTER_maf_to_fasta_0" destination="local" />
+	    <tool id="CONVERTER_maf_to_interval_0" destination="local" />
+	    <tool id="CONVERTER_picard_interval_list_to_bed6" destination="local" />
+	    <tool id="CONVERTER_sam_to_bam" destination="local" />
+	    <tool id="CONVERTER_sam_to_bigwig_0" destination="local" />
+	    <tool id="CONVERTER_vcf_bgzip_to_tabix_0" destination="local" />
+	    <tool id="CONVERTER_vcf_to_bgzip_0" destination="local" />
+	    <tool id="CONVERTER_vcf_to_tabix_0" destination="local" />
+	    <tool id="CONVERTER_vcf_to_vcf_bgzip_0" destination="local" />
+	    <tool id="CONVERTER_wiggle_to_interval_0" destination="local" />
+	    <tool id="CONVERTER_wig_to_bigwig" destination="local" />	    
+	    <tool id="upload" destination="local" />
+	    <tool id="upload1" destination="local" />
+	    <tool id="ucsc_table_direct1" destination="local" />
+	    <tool id="ucsc_table_direct_archaea1" destination="local" />
+	    <tool id="ebi_sra_main" destination="local" />
+	    <tool id="microbial_import1" destination="local" />
+	    <tool id="biomart" destination="local" />
+	    <tool id="cbi_rice_mart" destination="local" />
+	    <tool id="gramenemart" destination="local" />
+	    <tool id="modENCODEfly" destination="local" />
+	    <tool id="flymine" destination="local" />
+	    <tool id="modmine" destination="local" />
+	    <tool id="mousemine" destination="local" />
+	    <tool id="ratmine" destination="local" />
+	    <tool id="yeastmine" destination="local" />
+	    <tool id="metabolicmine" destination="local" />
+	    <tool id="modENCODEworm" destination="local" />
+	    <tool id="wormbase" destination="local" />
+	    <tool id="eupathdb" destination="local" />
+	    <tool id="hbvar" destination="local" />
+	    <tool id="genomespace_file_browser_prod" destination="local" />
+	    <tool id="genomespace_importer" destination="local" />
+	    <tool id="fix_errors" destination="local" />
+	    <tool id="genomespace_exporter" destination="local" />
+	    <tool id="barchart_gnuplot" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_cut_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_tail_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_easyjoin_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_grep_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_awk_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_tac/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_uniq_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_multijoin_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sed_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_column/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_text_file_with_recurring_lines/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_unfold_column_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sort_rows/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sort_header_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_head_tool/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_sorted_uniq/1.0.0" destination="local" />
+	    <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_find_and_replace/1.0.0" destination="local" />
+	    <tool id="addValue" destination="local" />
+	    <tool id="cat1" destination="local" />
+	    <tool id="Cut1" destination="local" />
+	    <tool id="mergeCols1" destination="local" />
+	    <tool id="Convert characters1" destination="local" />
+	    <tool id="createInterval" destination="local" />
+	    <tool id="ChangeCase" destination="local" />
+	    <tool id="Paste1" destination="local" />
+	    <tool id="Remove beginning1" destination="local" />
+	    <tool id="random_lines1" destination="local" />
+	    <tool id="Show beginning1" destination="local" />
+	    <tool id="Show tail1" destination="local" />
+	    <tool id="trimmer" destination="local" />
+	    <tool id="wc_gnu" destination="local" />
+	    <tool id="secure_hash_message_digest" destination="local" />
+	    <tool id="Filter1" destination="local" />
+	    <tool id="sort1" destination="local" />
+	    <tool id="Grep1" destination="local" />
+
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bigwigCompare/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCoverage/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_correctGCBias/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCorrelate/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCompare/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamFingerprint/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_profiler/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_computeMatrix/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamPEFragmentSize/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_heatmapper/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_computeGCBias/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bigwigCompare/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCoverage/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_correctGCBias/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCorrelate/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamCompare/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamFingerprint/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_profiler/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_computeMatrix/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_bamPEFragmentSize/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_heatmapper/1.5.9.1.0" destination="multicore_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/bgruening/deeptools/deeptools_computeGCBias/1.5.9.1.0" destination="multicore_ssh_oar" />
+
+            <tool id="toolshed.g2.bx.psu.edu/repos/devteam/data_manager_bwa_mem_index_builder/bwa_mem_index_builder_data_manager/0.0.1" destination="long_ssh_oar" />
+            <tool id="toolshed.g2.bx.psu.edu/repos/devteam/data_manager_bowtie2_index_builder/bowtie2_index_builder_data_manager/0.0.2" destination="long_ssh_oar" />
+      </tools>
+</job_conf>

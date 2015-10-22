@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd <%= @directory %>
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -1 -r  >> ../delete_userless_histories.log
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -2 -r  >> ../purge_histories.log
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -4 -r  >> ../purge_libraries.log
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -5 -r  >> ../purge_library_folders.log
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -6 -r  >> ../delete_datasets.log
+python ./scripts/cleanup_datasets/cleanup_datasets.py ./config/galaxy.ini -d 10 -3 -r  >> ../purge_datasets.log

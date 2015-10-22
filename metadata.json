@@ -1,0 +1,18 @@
+{
+  "name": "sdiehl-galaxy",
+  "version": "0.3.1",
+  "author": "sdiehl",
+  "summary": "Puppet module to set up the Galaxy server.",
+  "license": "Apache 2.0",
+  "source": "gitlab.uni.lu/sdiehl/puppet-galaxy",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"},
+    {"name":"puppetlabs-apache"},
+    {"name":"puppetlabs-postgresql"},
+    {"name":"puppetlabs-vcsrepo"},
+    {"name":"ulhpc-exim4"}
+  ]
+}
+
